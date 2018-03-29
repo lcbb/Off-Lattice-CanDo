@@ -1,11 +1,14 @@
 
 =====================================
 =                                   =
-=   OFF-LATTICE CANDO VERSION 1.0   =
+=   OFF-LATTICE CANDO VERSION 1.1   =
 =                                   =
 =====================================
 
-Updated March 2018
+Version 1.0 - Base version of Off-Lattice CANDO (Updated March 9th, 2018)
+
+Version 1.1 - Added specification of CNDO topology file inputs 
+(Updated March 23rd, 2018)
 
 Authorship: See literature below
 Other contributors: Hyungmin Jun
@@ -79,18 +82,22 @@ B. HOW TO RUN OFF-LATTICE CANDO
 
 1. Input requirements to solve the 3D solution of a DNA nanoparticle:
 
-	a. A topology file (structure.dat) converted from Tiamat (required)
+	a. A topology file (structure.dat) converted from Tiamat or in the CNDO
+	   file format (structure.cndo).
 	
 	b. A sequence file (structure.txt) with basepairing information
-	   (not required unless generating an atomic model)
+	   (not required unless generating an atomic model). CNDO topology format 
+	   already includes sequence information, but Tiamat topology format does 
+	   not.
 	   
 	    - Note that an atomic model can be generated without this sequence 
-		file. In this case a randomly generated sequence will be used.
+		file. In this case a randomly generated sequence will be used (Tiamat
+		topology format only).
 		 
 	Please visit http://cando-dna-origami.org/tutorial/ for more information 
 	regarding the preparation of input files for off-lattice CanDo.
 
-2. Convert Tiamat input (.dna) to CanDo input (.dat):
+2a. Convert Tiamat input (.dna) to CanDo input (.dat):
 
 		Use the included executable 'Tiamat2dat.exe' to convert the Tiamat 
 		input (.dna) file to a CanDo input (.dat) file. 
@@ -107,10 +114,12 @@ B. HOW TO RUN OFF-LATTICE CANDO
 	
 	Please visit http://cando-dna-origami.org/tutorial/ for more information 
 	regarding the preparation of input files for off-lattice CanDo.
+
+2b. With CNDO topology format (.cndo), no conversion process necessary.
 	
 3. Place any input files into the off-lattice CanDo 'inputDIR' as specified in
-   Section A3. This includes both topology (structure.dat) and sequence 
-   (structure.txt) files.
+   Section A3. This includes both topology (structure.dat, structure.cndo) and 
+   sequence (structure.txt) files.
    
 4. Modify any CanDo adjustable parameters:
 
@@ -171,7 +180,9 @@ B. HOW TO RUN OFF-LATTICE CANDO
 	
 	For each submission, only the prefix of the input file is required. 
 	For example, if your input file is named structure.dat, the input to 
-	'main_offlattice' is 'structure'.
+	'main_offlattice' is 'structure'. If your input file is named 
+	structure.cndo, the input to 'main_offlattice' is also 'structure'. You 
+	may run both Tiamat and CNDO inputs in the same submission batch.
 		
 =========================
 

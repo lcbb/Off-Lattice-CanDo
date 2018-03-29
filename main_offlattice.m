@@ -17,8 +17,8 @@ outputDIR = 'output';
 % B. Setting Program Paths
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-path.ADINA_AUI = '"C:\ADINA92\x64\AUI.exe"';
-path.ADINA     = '"C:\ADINA92\x64\adina.exe"';
+path.ADINA_AUI = '"C:\ADINA93\x64\AUI.exe"';
+path.ADINA     = '"C:\ADINA93\x64\adina.exe"';
 path.CHIMERA   = '"C:\Program Files\Chimera 1.10.2\bin\chimera.exe"';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,29 +82,49 @@ for iDesign=1:numel(designs)
     %% Setting CanDo parameters
     param = setParam(path,angleHJ,rHelix,dampingMass,nickSF,alignBendHJ,alignTwistHJ,jobInfo);
 
-    %% Parsing the input .dat and .txt files
-    if ~exist(fullfile(inputDIR,strcat(bodyFN,'.dat')))
+	%% Initialize type of topology file
+	topTYPE = '';
+	
+    %% Parsing the input .dat, .cndo, and .txt files
+    if ~exist(fullfile(inputDIR,strcat(bodyFN,'.dat'))) && ...,
+            ~exist(fullfile(inputDIR,strcat(bodyFN,'.cndo')))
         topPATH = [];
-        fprintf('Empty var no topology file!\n');
-    else
+        fprintf('Error: No topology file in input directory!\n');
+    elseif exist(fullfile(inputDIR,strcat(bodyFN,'.dat')))
         topPATH = fullfile(inputDIR,strcat(bodyFN,'.dat'));
-        fprintf('We have a topology file so set the path.\n');
+        fprintf('We have a Tiamat topology file. Setting the path...\n');
+		topTYPE = 'tiamat';
+	elseif exist(fullfile(inputDIR,strcat(bodyFN,'.cndo')))
+        topPATH = fullfile(inputDIR,strcat(bodyFN,'.cndo'));
+        fprintf('We have a CNDO topology file. Setting the path...\n');
+		topTYPE = 'cndo';
     end
 
     if ~exist(fullfile(inputDIR,strcat(bodyFN,'.txt')))
         seqPATH = [];
-        fprintf('Empty var no sequence file!\n');
+        fprintf('Warning: No sequence file in input directory.\n');
     else
         seqPATH = fullfile(inputDIR,strcat(bodyFN,'.txt'));
-        fprintf('We have a sequence file so set the path.\n');
+        fprintf('We have a sequence file. Setting the path...\n');
     end
 
-    fprintf('Processing %s ...', topPATH);
-    main_Design2FE(topPATH, 'tiamat', '', outputDIR, seqPATH);
-    fprintf('Done.\n');
-    fprintf(1,'\t----- DNA Topology completed -----\n\n');
-    toc;
-
+	if strcmp(topTYPE, 'tiamat')
+	    fprintf('Processing %s ...', topPATH);
+		main_Design2FE(topPATH, 'tiamat', '', outputDIR, seqPATH);
+		fprintf('Done.\n');
+		fprintf(1,'\t----- DNA Topology completed -----\n\n');
+		toc;
+	elseif strcmp(topTYPE, 'cndo')
+	    fprintf('Processing %s ...', topPATH);
+		main_Design2FE(topPATH, 'cndo', '', outputDIR, seqPATH);
+		fprintf('Done.\n');
+		fprintf(1,'\t----- DNA Topology completed -----\n\n');
+		toc;
+	else
+		fprintf('No input design. Ending this iteration...\n');
+		continue
+	end
+	
     % Locating structural motif information
     matHJE = fullfile(outputDIR,strcat(bodyFN,'.mat'));
                 

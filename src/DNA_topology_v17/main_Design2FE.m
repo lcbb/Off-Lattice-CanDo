@@ -23,14 +23,14 @@ fprintf(fid_log, '%s\n', repmat('#',1,80));
 
 %% Step 1.1 Read the directed graph model from a design file in Tiamat or
 % caDNAno format
-if(strcmp(DesignType,'tiamat'))
+if strcmp(DesignType,'tiamat')
     % Tiamat design file
-    % TiamatParser(DesignPATH);
     dnaTop = Tiamat2topology(DesignPATH);      % get the topology information
     dnaTop = modify_dnaTop(dnaTop);                 % swap 'up' and 'down' in Tiamat
-    %elseif(strcmp(DesignType,'cadnano'))
-    % caDNAno design file
-    %dnaTop = json2topology(DesignPATH, latticeType);
+elseif strcmp(DesignType,'cndo')
+	% CNDO design file
+	dnaInfo = cndo2dnaInfo(DesignPATH);
+	dnaTop = modify_dnaTop(dnaInfo.dnaTop);
 else
     error('Unrecognizable design type.');
 end
@@ -47,22 +47,37 @@ fprintf(fid_log, '\tNumber of nucleotides = %d\n', numel(dnaTop));
 fprintf(fid_log, '\n[STEP 1.2] Organize graph nodes (nucleotides) into DNA strands...\n');
 fprintf(fid_log, '\tNumber of strands = %d\n', numel(strand));
 
+% For CNDO design only
+if(strcmp(DesignType,'cndo'))
+	% Add a field to dnaTop as the Cartesian coordinate of each nucleotide
+	for i = 1 : numel(dnaTop)
+		dnaTop(i).xyz = zeros(3,1);
+	end
+	% Compute the Cartesian coordinate of each nucleotide
+	[xyz_prefer, xyz_alt] = nt_coord(dnaInfo.dnaGeom.dNode, dnaInfo.dnaGeom.triad);
+	for i = 1 : size(dnaInfo.dnaGeom.id_nt,1)
+		i_prefer = dnaInfo.dnaGeom.id_nt(i,1);
+		i_alt = dnaInfo.dnaGeom.id_nt(i,2);
+		% Convert the unit of Cartesian coordinates from Angstrom (in dnaInfo) to nm (in dnaTop)
+		dnaTop(i_prefer).xyz = xyz_prefer(i,:)' / 10;
+		dnaTop(i_alt).xyz = xyz_alt(i,:)' / 10;
+	end
+end
 
 %% Step 1.3 Assign each graph node (nucleotide) as A, T, G, or C.
-if(~isempty(seqPATH))
-%   dnaTop = assignSeq(dnaTop, strand, seqPATH);    % assign the pre-defined sequences
-    dnaTop = assignSeqFromTiamat(dnaTop, strand, seqPATH);    % assign the pre-defined sequences
-    %dnaTop = assignSeqRand(dnaTop);                 % randomly assign the sequences
-else
-    dnaTop = assignSeqRand(dnaTop);                 % randomly assign the sequences
+%% Tiamat design only, CNDO design already includes sequence 
+if(strcmp(DesignType,'tiamat'))
+	if(~isempty(seqPATH))
+		%dnaTop = assignSeq(dnaTop, strand, seqPATH);    % assign the pre-defined sequences
+		dnaTop = assignSeqFromTiamat(dnaTop, strand, seqPATH);    % assign the pre-defined sequences
+	else
+		dnaTop = assignSeqRand(dnaTop);                 % randomly assign the sequences
+	end
 end
 
 % Write the log file
 fprintf(fid_log, '\n[STEP 1.3] Assign each graph node (nucleotide) as A, T, G, or C...\n');
 if(~isempty(seqPATH))
-%     for i = 1:numel(strand)
-%         fprintf(fid_log, '\tSequence of strand %d:\t%s\n', seqPATH{i});
-%     end
     fprintf(fid_log, '\tSequences of strands:\t%s\n', seqPATH);
 else
     fprintf(fid_log, '\tNo sequence information is available.\n\tRandomly generate nucleotide sequences for all strands.\n');
@@ -592,4 +607,22 @@ if(isnan(vStack))
     vStack = 0.5 - vStack/2;     % convert the range from [-1, 1] to [0, 1]
 end
 
+end
+
+function [xyz_prefer, xyz_alt] = nt_coord(dNode, triad)
+% Constant parameters
+diameterHX = 20;                  % [Angstrom] diameter of a helix
+angMinor = 120;                   % [degree] angle of the minor groove
+% Initialization
+xyz_prefer = zeros(size(dNode));
+xyz_alt = zeros(size(dNode));
+a_scaf = deg2rad(180 - angMinor / 2);
+a_stap = deg2rad(180 + angMinor / 2);
+R_HX = diameterHX / 2;           % [Angstrom] radius of a helix
+for i = 1 : size(dNode,1)
+    v_prefer = triad(:,:,i) * [cos(a_scaf), sin(a_scaf), 0]';
+    v_alt = triad(:,:,i) * [cos(a_stap), sin(a_stap), 0]';
+    xyz_prefer(i,:) = dNode(i,:) + v_prefer' * R_HX;
+    xyz_alt(i,:) = dNode(i,:) + v_alt' * R_HX;
+end
 end
