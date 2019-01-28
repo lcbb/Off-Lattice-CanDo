@@ -6,24 +6,16 @@ addpath src\local_geometry_v2
 addpath src\topology2pdb_ver4_bulge
 addpath src\v5.10
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A. Input/output files
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-inputDIR = 'input';
+inputDIR  = 'input';
 outputDIR = 'output';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % B. Setting Program Paths
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 path.ADINA_AUI = '"C:\ADINA93\x64\AUI.exe"';
 path.ADINA     = '"C:\ADINA93\x64\adina.exe"';
 path.CHIMERA   = '"C:\Program Files\Chimera 1.10.2\bin\chimera.exe"';
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % C. Set Adjustable CanDo Parameters Here
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % angleHJ [degree] : equilibrium junction twist angle (default = 60)
 angleHJ = 60;
@@ -64,10 +56,7 @@ alignBendHJ  = 1.0;
 alignTwistHJ = 0.05;
 tic;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main. Run FE simulations and Post-Processing
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 for iDesign=1:numel(designs)
                 
     % Get current filenames & parameters
